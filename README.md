@@ -1,62 +1,31 @@
-# simples-banco
+# Exercício: Evitando Race Conditions em Transferências Bancárias
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Você foi contratado para desenvolver o módulo de **transferências bancárias** de um sistema financeiro. O sistema deve permitir que um cliente transfira valores entre contas bancárias cadastradas no banco de dados.  
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+Atualmente, existe um problema grave: quando várias transferências ocorrem ao mesmo tempo (concorrência), é possível que a conta de origem fique com **saldo negativo**, mesmo existindo uma regra de negócio que impede isso. Isso acontece porque duas transações podem **ler o mesmo saldo antigo** antes de debitar, resultando em inconsistências (**race condition** / **lost update**).
 
-## Running the application in dev mode
+## **Seu desafio**
 
-You can run your application in dev mode that enables live coding using:
+1. Implementar a operação de transferência corrigindo esse problema de concorrência.  
+2. Resolver o problema de **pelo menos 3 formas diferentes**.  
+3. Garantir que **nenhuma conta possa ficar com saldo negativo**, independentemente da carga de concorrência.
+4. Você tem que fazer todos os testes da aplicação passarem com sucesso.
 
-```shell script
-./mvnw quarkus:dev
-```
+## **Requisitos funcionais**
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+- A operação deve debitar o valor da conta de origem e creditar na conta de destino.  
+- A transação deve ser **atômica**: se ocorrer qualquer falha (saldo insuficiente, conta inexistente, falha técnica), nenhuma alteração deve ser gravada.  
+- O saldo final de cada conta deve estar correto mesmo quando várias transferências ocorrem ao mesmo tempo.  
 
-## Packaging and running the application
+## **Sugestões (para inspirar suas soluções)**
 
-The application can be packaged using:
+- Usar **lock pessimista** (`PESSIMISTIC_WRITE`) em JPA.  
+- Usar **lock otimista** com `@Version` e retry em caso de conflito.  
+- Usar um **UPDATE condicional** (CAS - compare and swap) com `WHERE saldo >= valor`.  
+- Usar **constraint no banco** (`CHECK (saldo >= 0)`) em conjunto com tratamento da exceção.  
+- Criar uma abordagem arquitetural (fila de mensagens, serialização de comandos por conta).
 
-```shell script
-./mvnw package
-```
+## **Não é necessário entregar, isso aqui é pra vocês praticarem**
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/simples-banco-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+- Implemente **três soluções diferentes**, documentando em comentários a abordagem adotada em cada uma.  
+- Explique (em texto ou README) **vantagens e desvantagens** de cada solução.  
