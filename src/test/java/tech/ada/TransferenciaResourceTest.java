@@ -142,10 +142,14 @@ class TransferenciaResourceTest {
         Conta destinoDepois = Arrays.stream(contasDepois)
                 .filter(c -> c.getId().equals(destinoAntes.getId()))
                 .findAny().orElseThrow();
+        BigDecimal valorTransferencia = new BigDecimal("50.00");
+        int totalSucessos = sucessos.get();
 
-        Assertions.assertEquals(new BigDecimal("0.00"), origemDepois.getSaldo());
-        Assertions.assertEquals(new BigDecimal("200.00"), destinoDepois.getSaldo());
+        BigDecimal saldoOrigemEsperado = origemAntes.getSaldo().subtract(valorTransferencia.multiply(BigDecimal.valueOf(totalSucessos)));
+        BigDecimal saldoDestinoEsperado = destinoAntes.getSaldo().add(valorTransferencia.multiply(BigDecimal.valueOf(totalSucessos)));
 
+        Assertions.assertEquals(saldoOrigemEsperado, origemDepois.getSaldo());
+        Assertions.assertEquals(saldoDestinoEsperado, destinoDepois.getSaldo());
     }
 
 }

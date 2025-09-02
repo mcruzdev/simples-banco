@@ -1,7 +1,6 @@
 package tech.ada;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
